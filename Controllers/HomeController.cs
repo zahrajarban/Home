@@ -16,67 +16,42 @@ namespace Home.Controllers
             _context = context;
         }
 
-        
+        // GET: api/Home
+        [HttpPost("List")]
+        public async Task<IActionResult> GetHomes()
+        {
+            var homes = await _context.Homes
+                .Include(h => h.User)
+                .ToListAsync();
+
+            return Ok(homes);
+        }
+
+        // GET: api/Home/1
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetHome(int id)
+        {
+            var home = await _context.Homes
+                .Include(h => h.User)
+                .FirstOrDefaultAsync(h => h.Id == id);
+
+            if (home == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(home);
+        }
+
+        // POST: api/Home
         [HttpPost]
-        public async Task<IActionResult> SetHome(Home.Models.HomeModel home)
+        public async Task<IActionResult> CreateHome(HomeModel home)
         {
             _context.Homes.Add(home);
+
             await _context.SaveChangesAsync();
 
             return Ok(home);
-        }
-
-        
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetSingleHome(int id)
-        {
-            var home = await _context.Homes
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (home == null)
-                return NotFound();
-
-            return Ok(home);
-        }
-
-        
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHome(int id)
-        {
-            var home = await _context.Homes
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (home == null)
-                return NotFound();
-
-            _context.Homes.Remove(home);
-            await _context.SaveChangesAsync();
-
-            return Ok("Home deleted successfully");
-        }
-
-        
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateHome(
-            int id,
-            Home.Models.HomeModel home)
-        {
-            var existingHome = await _context.Homes
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (existingHome == null)
-                return NotFound();
-
-            existingHome.Address = home.Address;
-            existingHome.Area = home.Area;
-            existingHome.Rent = home.Rent;
-            existingHome.Deposit = home.Deposit;
-            existingHome.Lat = home.Lat;
-            existingHome.Lng = home.Lng;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(existingHome);
         }
     }
 }

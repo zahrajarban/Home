@@ -15,5 +15,11 @@
         public double Lat { get; set; }
 
         public double Lng { get; set; }
+
+       
+        public int? UserId { get; set; }
+
+        
+        public UserModel User { get; set; }
     }
 }
