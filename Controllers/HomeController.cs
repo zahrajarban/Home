@@ -43,7 +43,7 @@ namespace Home.Controllers
             return Ok(home);
         }
 
-        // POST: api/Home
+        // POST: api/Home/set
         [HttpPost]
         public async Task<IActionResult> CreateHome(HomeModel home)
         {
