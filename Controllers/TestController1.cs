@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Home.Controllers
 {
+    [Authorize]
     public class TestController1 : Controller
     {
-        public IActionResult Index()
+        [HttpGet]
+        public async Task <IActionResult> Test()
         {
-            return View();
+            return Ok("you are Authorized...");
         }
     }
 }
