@@ -1,11 +1,14 @@
 using Home.Data;
-using Microsoft.EntityFrameworkCore;
 using Home.Services;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Experimental;
-using System.Security.Cryptography;
+using Jose;
+using JWT.Algorithms;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
+
 var jwtCreator = JWT.Builder.JwtBuilder.Create();
 string jwtStr = jwtCreator
     .AddClaim("name", "zahra jarban")
@@ -27,17 +30,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(OptionsBuilderConfigurationExtensions=>
-{
-    opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens()
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
     {
-        IssuerSigningKeyResolver = new SymmetricSecurityKey(ContentEncodingMetadata.UTF8.GetBytes("11111111111111111111111111111111")),
-        RequireExpirationTime= false,
-        RequireAudience=false,
-        ValidateAudience=false,
-        ValidatedIssuer=false
-    };
-});
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("11111111111111111111111111111111")),
+            RequireExpirationTime = false,
+            ValidateAudience = false,
+            ValidateIssuer = false
+        };
+    });
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
