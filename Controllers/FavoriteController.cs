@@ -1,62 +1,40 @@
-﻿using Home.Data;
-using Home.Models;
+﻿using Home.Models;
+using Home.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 namespace Home.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class FavoriteController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public FavoriteController(AppDbContext context)
+        private readonly FavoriteService _favoriteService;
+        public FavoriteController(FavoriteService favoriteService)
         {
-            _context = context;
+            _favoriteService = favoriteService;
         }
-              
-
         [HttpPost]
-        public async Task<IActionResult> AddFavorite(FavoriteModel favorite)
+        public async Task<IActionResult> AddFavorite(FavoriteDto favorite)
         {
-            var exists = await _context.Favorite
-                .AnyAsync(f => f.UserId == favorite.UserId &&
-                              f.HomeId == favorite.HomeId);
-            if (exists)
-            {
+            var result = await _favoriteService.AddFavorite(favorite.UserId,favorite.HomeId);
+            if (!result)
                 return BadRequest("This home is already in favorites.");
-            }
-            _context.Favorite.Add(favorite);
-            await _context.SaveChangesAsync();
             return Ok("Home added to favorites.");
         }
-     
-
-        [HttpGet("{UserId}")]
+        [HttpGet("{userId}")]
         public async Task<IActionResult> GetFavorites(int userId)
         {
-            var favorites = await _context.Favorite
-                .Include(f => f.Home)
-                .Where(f => f.UserId == userId)
-                .ToListAsync();
+            var favorites = await _favoriteService.GetFavorites(userId);
             return Ok(favorites);
         }
-      
-
-        [HttpDelete("{UserId}/{HomeId}")]
+        [HttpGet("{userId}/{homeId}")]
         public async Task<IActionResult> DeleteFavorite(
             int userId,
             int homeId)
         {
-            var favorite = await _context.Favorite
-                .FirstOrDefaultAsync(f =>
-                    f.UserId == userId &&
-                    f.HomeId == homeId);
-            if (favorite == null)
-            {
+            var result = await _favoriteService
+                .DeleteFavorite(userId, homeId);
+            if (!result)
                 return NotFound("Favorite not found.");
-            }
-            _context.Favorite.Remove(favorite);
-            await _context.SaveChangesAsync();
             return Ok("Home removed from favorites.");
         }
     }

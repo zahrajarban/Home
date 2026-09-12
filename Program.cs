@@ -1,7 +1,10 @@
 using Home.Data;
 using Microsoft.EntityFrameworkCore;
-
+using Home.Services;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<FavoriteService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<HomeService>();
 
 builder.Services.AddControllers();
 

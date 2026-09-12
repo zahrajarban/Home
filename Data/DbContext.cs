@@ -14,7 +14,7 @@ namespace Home.Data
 
         public DbSet<UserModel> Users { get; set; }
 
-        public DbSet<FavoriteModel> Favorite { get; set; }
+        public DbSet<FavoriteModel> Favorites { get; set; }
 
         public DbSet<HomeInfoModel> HomeInfos { get; set; }
 

@@ -1,57 +1,35 @@
-﻿using Home.Data;
-using Home.Models;
+﻿using Home.Models;
+using Home.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace Home.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class HomeController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public HomeController(AppDbContext context)
+        private readonly HomeService _homeService;
+        public HomeController(HomeService homeService)
         {
-            _context = context;
+            _homeService = homeService;
         }
-
-        // GET: api/Home
-        [HttpPost("List")]
+        [HttpGet]
         public async Task<IActionResult> GetHomes()
         {
-            var homes = await _context.Homes
-                .Include(h => h.User)
-                .ToListAsync();
-
-            return Ok(homes);
+            return Ok(await _homeService.GetHomes());
         }
-
-        // GET: api/Home/1
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHome(int id)
         {
-            var home = await _context.Homes
-                .Include(h => h.User)
-                .FirstOrDefaultAsync(h => h.Id == id);
-
+            var home = await _homeService.GetHome(id);
             if (home == null)
-            {
                 return NotFound();
-            }
-
             return Ok(home);
         }
-
-        // POST: api/Home/set
         [HttpPost]
-        public async Task<IActionResult> CreateHome(HomeModel home)
+        public async Task<IActionResult> AddHome(HomeModel home)
         {
-            _context.Homes.Add(home);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(home);
+            var result = await _homeService.AddHome(home);
+            return Ok(result);
         }
     }
 }

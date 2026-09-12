@@ -1,55 +1,35 @@
-﻿using Home.Data;
-using Home.Models;
+﻿using Home.Models;
+using Home.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace Home.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public UserController(AppDbContext context)
+        private readonly UserService _userService;
+        public UserController(UserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
-
-        // GET: api/User
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
-
-            return Ok(users);
+            return Ok(await _userService.GetUsers());
         }
-
-        // GET: api/User/1
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _context.Users
-                .Include(u => u.Homes)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
+            var user = await _userService.GetUser(id);
             if (user == null)
-            {
                 return NotFound();
-            }
-
             return Ok(user);
         }
-
-        // POST: api/User
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserModel user)
+        public async Task<IActionResult> AddUser(UserModel user)
         {
-            _context.Users.Add(user);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(user);
+            var result = await _userService.AddUser(user);
+            return Ok(result);
         }
     }
 }
